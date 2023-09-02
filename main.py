@@ -1,6 +1,25 @@
 import pygame
+import sqlite3
 
+# Инициализируем базу данных
+conn = sqlite3.connect('game.db')
+cursor = conn.cursor()
+cursor.execute('CREATE TABLE IF NOT EXISTS players (id INTEGER PRIMARY KEY, name TEXT, score INTEGER)')
+conn.commit()
 
+# Функция для обновления счёта игрока в базе данных
+def update_score(name, new_score):
+    cursor.execute('UPDATE players SET score = ? WHERE name = ?', (new_score, name))
+    conn.commit()
+
+# Функция для получения счёта игрока из базы данных
+def get_score(name):
+    cursor.execute('SELECT score FROM players WHERE name = ?', (name,))
+    score = cursor.fetchone()
+    if score:
+        return score[0]
+    else:
+        return None
 
 # Записываем переменные
 clock = pygame.time.Clock()
@@ -19,6 +38,8 @@ monster_list = []
 
 bg = pygame.image.load('fonts/font_2.jpg').convert()
 player = pygame.image.load('images/pl_right/right_1.png').convert_alpha()
+player_name = "Игрок"
+player_score = get_score(player_name) or 0
 
 walk_l = [
     pygame.image.load('images/pl_left/left_1.png').convert_alpha(),
@@ -34,15 +55,15 @@ walk_r = [
     pygame.image.load('images/pl_right/right_4.png').convert_alpha(),
 ]
 
+player_speed = 5
+pl_x = 100
+pl_y = 530
+
 pl_anim_count = 0
 bg_x = 0
 
 sounds = pygame.mixer.Sound('sound/maro-jump-sound-effect_1.mp3')
 
-
-player_speed = 5
-pl_x = 100
-pl_y = 530
 
 is_jump = False
 jump_count = 8
@@ -55,6 +76,8 @@ label_size_1 = pygame.font.Font('fonts/ocra(RUS BY LYAJKA).ttf', 20)
 lose_label = label_size.render("You lose!!!", False, (230,200,178))
 restart_label = label_size_1.render("Restart", False, 'Red')
 restart_label_rect = restart_label.get_rect(topleft=(450, 340))
+score_text = pygame.font.Font('fonts/ocra(RUS BY LYAJKA).ttf', 15)
+score_text_1 = score_text.render(f"Счёт игрока: {player_score}", True, 'BLACK')
 
 bullet = pygame.image.load('images/free-icon-fire-3426127.png')
 bullets = []
@@ -68,7 +91,11 @@ while running:
     # Добавляем фон игры
     screen.blit(bg, (bg_x, 0))
     screen.blit(bg, (bg_x + 1200, 0))
+    screen.blit(score_text_1, (1100, 0))
 
+    # Обновление счёта игрока
+    player_score += 1
+    update_score(player_name, player_score)
 
     if gameplay:
 
