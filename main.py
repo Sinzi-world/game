@@ -1,25 +1,4 @@
 import pygame
-import sqlite3
-
-# Инициализируем базу данных
-conn = sqlite3.connect('game.db')
-cursor = conn.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS players (id INTEGER PRIMARY KEY, name TEXT, score INTEGER)')
-conn.commit()
-
-# Функция для обновления счёта игрока в базе данных
-def update_score(name, new_score):
-    cursor.execute('UPDATE players SET score = ? WHERE name = ?', (new_score, name))
-    conn.commit()
-
-# Функция для получения счёта игрока из базы данных
-def get_score(name):
-    cursor.execute('SELECT score FROM players WHERE name = ?', (name,))
-    score = cursor.fetchone()
-    if score:
-        return score[0]
-    else:
-        return None
 
 # Записываем переменные
 clock = pygame.time.Clock()
@@ -39,7 +18,7 @@ monster_list = []
 bg = pygame.image.load('fonts/font_2.jpg').convert()
 player = pygame.image.load('images/pl_right/right_1.png').convert_alpha()
 player_name = "Игрок"
-player_score = get_score(player_name) or 0
+player_score = 0
 
 walk_l = [
     pygame.image.load('images/pl_left/left_1.png').convert_alpha(),
@@ -69,19 +48,19 @@ is_jump = False
 jump_count = 8
 
 monster_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(monster_timer, 2500)
+pygame.time.set_timer(monster_timer, 3500)
 
 label_size = pygame.font.Font('fonts/ocra(RUS BY LYAJKA).ttf', 30)
 label_size_1 = pygame.font.Font('fonts/ocra(RUS BY LYAJKA).ttf', 20)
 lose_label = label_size.render("You lose!!!", False, (230,200,178))
 restart_label = label_size_1.render("Restart", False, 'Red')
 restart_label_rect = restart_label.get_rect(topleft=(450, 340))
-score_text = pygame.font.Font('fonts/ocra(RUS BY LYAJKA).ttf', 15)
-score_text_1 = score_text.render(f"Счёт игрока: {player_score}", True, 'BLACK')
+
 
 bullet = pygame.image.load('images/free-icon-fire-3426127.png')
 bullets = []
 bullets_left = 10
+
 
 gameplay = True
 
@@ -91,11 +70,6 @@ while running:
     # Добавляем фон игры
     screen.blit(bg, (bg_x, 0))
     screen.blit(bg, (bg_x + 1200, 0))
-    screen.blit(score_text_1, (1100, 0))
-
-    # Обновление счёта игрока
-    player_score += 1
-    update_score(player_name, player_score)
 
     if gameplay:
 
@@ -112,6 +86,8 @@ while running:
 
                 if player_rect.colliderect(element):
                     gameplay = False
+
+
 
         #отклик героя на нажатие кнопок
         keys = pygame.key.get_pressed()
@@ -168,6 +144,7 @@ while running:
                         if el.colliderect(monster_count):
                             M = monster_list.pop(i)
                             bullets.pop(i)
+                            player_score += 10
                             if M:
                                 bullets_left += 1
     else:
@@ -182,7 +159,10 @@ while running:
             monster_list.clear()
             bullets.clear()
             bullets_left = 10
+            player_score = 0
 
+    score_text = label_size_1.render(f"Счёт игрока: {player_score}", True, 'BLACK')
+    screen.blit(score_text, (10, 10))
 
     pygame.display.update()
 
@@ -196,5 +176,6 @@ while running:
                 and bullets_left > 0:
             bullets.append(bullet.get_rect(topleft=(pl_x + 30, pl_y + 15)))
             bullets_left -= 1
+
 
     clock.tick(9)
