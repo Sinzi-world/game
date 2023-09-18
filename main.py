@@ -1,9 +1,9 @@
 import pygame
 
-# Записываем переменные
-clock = pygame.time.Clock()
 
+# Записываем переменные
 pygame.init()
+clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1200, 675))
 pygame.display.set_caption("Mario na minimalkah")
 icon = pygame.image.load('images/pyGame.webp').convert()
