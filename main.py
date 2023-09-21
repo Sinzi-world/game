@@ -71,6 +71,9 @@ while running:
     screen.blit(bg, (bg_x, 0))
     screen.blit(bg, (bg_x + 1200, 0))
 
+    score_text = label_size_1.render(f"Счёт игрока: {player_score}", True, 'BLACK')
+    screen.blit(score_text, (10, 10))
+
     if gameplay:
 
         # Создаём связи между игроком и монстрами
@@ -161,8 +164,6 @@ while running:
             bullets_left = 10
             player_score = 0
 
-    score_text = label_size_1.render(f"Счёт игрока: {player_score}", True, 'BLACK')
-    screen.blit(score_text, (10, 10))
 
     pygame.display.update()
 
