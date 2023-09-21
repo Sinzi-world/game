@@ -179,4 +179,4 @@ while running:
             bullets_left -= 1
 
 
-    clock.tick(9)
+    clock.tick(15)
